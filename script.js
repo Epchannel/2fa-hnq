@@ -305,7 +305,7 @@
       // Valid Key
       activeSecret = cleaned;
 
-      setTotpResult("ok", "fa-circle-check", "Khóa bí mật hợp lệ! Trình tạo mã đang tính toán và hiển thị mã OTP.");
+      setTotpResult("ok", "fa-circle-check", "Khóa bí mật hợp lệ và đang hiển thị mã OTP.");
 
       if (displayIssuerName) displayIssuerName.innerText = "Khóa: " + maskSecret(cleaned);
       if (stepTwoBox) stepTwoBox.hidden = false;
