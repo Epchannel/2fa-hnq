@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Xác minh 2 bước · Trình tạo mã TOTP & Hướng dẫn bảo mật</title>
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noodp, noydir" />
+  <meta name="description"
+    content="Trình tạo mã xác thực 2 bước (TOTP) chạy 100% offline trên trình duyệt của bạn. Hỗ trợ Google, Facebook, Zalo, Binance..." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <header class="nav">
+    <a class="logo" href="#generator" aria-label="Xác minh 2 bước">
+      <span class="logo-mark">
+        <span>2FA</span>
+      </span>
+      <span class="logo-text">
+        <strong>Xác minh 2 bước</strong>
+        <small>totp.web-totp.dev</small>
+      </span>
+    </a>
+    <nav class="nav-links" aria-label="Điều hướng">
+      <a href="#generator">Trình tạo mã</a>
+      <a href="#instructions">Hướng dẫn</a>
+    </nav>
+    <div class="nav-actions">
+      <span class="nav-login" style="cursor: default;"><i class="fa-solid fa-shield-halved"></i> Bảo mật 100%</span>
+      <a class="nav-cta" href="#generator">Tạo mã ngay</a>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="activation-section" id="generator">
+      <div class="section-inner">
+        <div class="activation-card reveal">
+          <div class="activation-copy">
+            <div class="eyebrow">Trình tạo mã</div>
+            <h2 class="section-title">Nhập khóa bí mật và <br><span class="gradient">lấy mã OTP</span></h2>
+            <p class="section-desc">Nhập khóa bí mật (Secret Key) được cung cấp bởi nhà dịch vụ của bạn để xem mã xác
+              thực 2 bước.</p>
+          </div>
+
+          <div class="activation-panel">
+            <div class="step-status">
+              <span class="step-pill active" id="stepOnePill">Step 1 · Nhập Khóa</span>
+              <span class="step-pill" id="stepTwoPill">Step 2 · Nhận Mã</span>
+            </div>
+
+            <form class="cdk-form" id="totpForm">
+              <div class="totp-input-grid">
+                <div>
+                  <label for="secretInput">Khóa bí mật (Base32 Key)</label>
+                  <input id="secretInput" name="secret" type="text" placeholder="Nhập khóa (ví dụ: JBSW...)"
+                    autocomplete="off" required />
+                </div>
+                <div style="display: flex; align-items: flex-end;">
+                  <button class="btn btn-primary" type="submit" id="totpSubmit"><i class="fa-solid fa-lock"></i> Tạo
+                    mã</button>
+                </div>
+              </div>
+            </form>
+
+            <div class="cdk-result" id="totpResult" aria-live="polite">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>Nhập khóa bí mật để bắt đầu tính toán mã xác thực.</span>
+            </div>
+
+            <div class="step-two-box" id="stepTwoBox" hidden>
+              <div class="totp-display-card">
+                <p id="displayIssuerName">Khóa bí mật đang kích hoạt</p>
+                <div class="totp-code-wrapper">
+                  <div class="totp-code-large" id="largeTotpCode" title="Bấm để sao chép">000000</div>
+
+                  <div class="timer-container">
+                    <svg class="progress-ring" width="44" height="44">
+                      <circle class="progress-ring__circle" stroke-width="3" fill="transparent" r="18" cx="22"
+                        cy="22" />
+                    </svg>
+                    <span class="timer-text" id="timerText">30</span>
+                  </div>
+                </div>
+                <p><i class="fa-regular fa-clock"></i> Mã tự động đổi mới mỗi 30 giây.</p>
+                <div class="dashboard-actions">
+                  <button class="btn btn-primary" id="btnCopyTotp" style="width: 100%;"><i
+                      class="fa-regular fa-copy"></i> Sao chép mã</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section steps-section" id="instructions">
+      <div class="section-inner">
+        <div class="section-header">
+          <div class="eyebrow reveal">Cách dùng</div>
+          <h2 class="section-title reveal">3 bước để <span class="gradient">kích hoạt & sử dụng</span></h2>
+        </div>
+        <div class="steps">
+          <article class="step reveal"><span>01</span>
+            <h3>Bật bảo mật 2FA</h3>
+            <p>Vào phần Cài đặt & Bảo mật trên Facebook, Google, Zalo... Chọn bật 'Xác thực 2 yếu tố' (2FA) bằng 'Ứng
+              dụng xác thực'.</p>
+          </article>
+          <article class="step reveal"><span>02</span>
+            <h3>Lấy khóa bí mật</h3>
+            <p>Nhà cung cấp dịch vụ sẽ hiển thị một mã QR hoặc một chuỗi chữ số gọi là 'Khóa bí mật' (Secret Key). Hãy
+              sao chép chuỗi ký tự đó.</p>
+          </article>
+          <article class="step reveal"><span>03</span>
+            <h3>Tạo mã xác thực</h3>
+            <p>Dán Khóa bí mật vào Trình tạo mã bên trên để xem mã 6 số đăng nhập. Mã này sẽ đồng bộ thời gian và đổi
+              mới sau mỗi 30s.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <span>© 2026 XÁC MINH 2 BƯỚC · WEB TOTP</span>
+    <div class="footer-links">
+      <a href="#generator">Trình tạo mã</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
