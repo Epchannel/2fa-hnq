@@ -555,14 +555,19 @@ h1 {
 .totp-code-wrapper {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 1.5rem;
   margin: 0.5rem 0;
+  max-width: 100%;
 }
 .totp-code-large {
   font-family: var(--mono);
-  font-size: 3.2rem;
+  /* Co giãn theo bề ngang màn hình để mã 6 số luôn nằm gọn trên 1 dòng */
+  font-size: clamp(1.9rem, 9vw, 3.2rem);
   font-weight: 700;
   letter-spacing: 0.1em;
+  white-space: nowrap;
   color: var(--accent-2);
   text-shadow: 0 0 25px rgba(255, 184, 0, 0.4);
   cursor: pointer;
@@ -1078,6 +1083,30 @@ h1 {
   }
   .feature-card, .why-card, .step {
     padding: 1.25rem;
+  }
+  /* Thu gọn các lớp padding lồng nhau để dành chỗ cho mã OTP */
+  .activation-panel {
+    padding: 0.75rem;
+  }
+  .step-two-box {
+    padding: 0.85rem;
+  }
+  .totp-display-card {
+    padding: 1rem 0.6rem;
+  }
+  .totp-code-wrapper {
+    gap: 0.75rem;
+  }
+  .totp-code-large {
+    letter-spacing: 0.06em;
+  }
+  .timer-container {
+    width: 38px;
+    height: 38px;
+  }
+  .progress-ring {
+    width: 38px;
+    height: 38px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

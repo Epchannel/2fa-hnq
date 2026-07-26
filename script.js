@@ -60,9 +60,16 @@
 
 
   // 6. Base32 Decoding
+  // Chuẩn hóa khóa: bỏ mọi khoảng trắng / gạch nối do người dùng dán vào
+  // (ví dụ "yv7k 53zm qclo kiac" hoặc "yv7k-53zm-qclo-kiac") và bỏ padding "=".
+  function normalizeSecret(str) {
+    if (!str) return "";
+    return String(str).replace(/[\s\-_]+/g, "").replace(/=+$/, "").toUpperCase();
+  }
+
   function base32ToBytes(str) {
     var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-    var cleaned = str.replace(/=+$/, "").replace(/\s+/g, "").toUpperCase();
+    var cleaned = normalizeSecret(str);
     if (cleaned.length === 0) return null;
 
     // Validate characters
@@ -157,7 +164,7 @@
   // 10. Mask secret key in list for security
   function maskSecret(secret) {
     if (!secret) return "";
-    var cleaned = secret.replace(/\s+/g, "").toUpperCase();
+    var cleaned = normalizeSecret(secret);
     if (cleaned.length <= 8) return "••••••••";
     return cleaned.substring(0, 4) + "••••••••" + cleaned.substring(cleaned.length - 4);
   }
@@ -290,7 +297,7 @@
         return;
       }
 
-      var cleaned = secret.replace(/\s+/g, "").toUpperCase();
+      var cleaned = normalizeSecret(secret);
       var keyBytes = base32ToBytes(cleaned);
 
       if (!keyBytes) {
@@ -354,8 +361,7 @@
 
   // 16. Auto-load Key from URL (Path segment, Hash or Query parameter)
   function isValidBase32(str) {
-    if (!str) return false;
-    var cleaned = str.replace(/=+$/, "").replace(/\s+/g, "").toUpperCase();
+    var cleaned = normalizeSecret(str);
     if (cleaned.length < 8) return false;
     var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
     for (var i = 0; i < cleaned.length; i++) {
@@ -366,27 +372,41 @@
     return true;
   }
 
+  // Giải mã phần URL: khoảng trắng trong URL bị mã hóa thành "%20" (hoặc "+" ở query),
+  // nên phải decode trước khi kiểm tra Base32.
+  function decodeUrlPart(str) {
+    if (!str) return "";
+    try {
+      return decodeURIComponent(String(str).replace(/\+/g, " "));
+    } catch (e) {
+      return String(str);
+    }
+  }
+
   function checkUrlForKey() {
     // Check hash (e.g. domain.com/#JBSWY3DPEHPK3PXP)
-    var hash = window.location.hash.substring(1).trim();
-    if (isValidBase32(hash)) return hash;
+    var hash = decodeUrlPart(window.location.hash.substring(1)).trim();
+    if (isValidBase32(hash)) return normalizeSecret(hash);
 
     // Check query string (e.g. domain.com/?JBSWY3DPEHPK3PXP)
-    var search = window.location.search.substring(1).trim();
-    if (isValidBase32(search)) return search;
-    
+    var search = decodeUrlPart(window.location.search.substring(1)).trim();
+    if (isValidBase32(search)) return normalizeSecret(search);
+
     // Check query param key (e.g. domain.com/?key=JBSWY3DPEHPK3PXP)
+    // URLSearchParams đã tự decode nên không decode thêm lần nữa.
     try {
       var urlParams = new URLSearchParams(window.location.search);
       var keyParam = urlParams.get("key") || urlParams.get("secret") || urlParams.get("k");
-      if (keyParam && isValidBase32(keyParam)) return keyParam;
+      if (keyParam && isValidBase32(keyParam)) return normalizeSecret(keyParam);
     } catch (e) {}
 
-    // Check path segment (e.g. domain.com/JBSWY3DPEHPK3PXP)
+    // Check path segment (e.g. domain.com/JBSWY3DPEHPK3PXP hoặc domain.com/yv7k%2053zm%20qclo)
     var segments = window.location.pathname.split('/').filter(Boolean);
-    var lastSegment = segments[segments.length - 1] || "";
-    if (lastSegment && lastSegment.toLowerCase() !== "index.html" && isValidBase32(lastSegment)) {
-      return lastSegment;
+    for (var i = segments.length - 1; i >= 0; i--) {
+      var segment = decodeUrlPart(segments[i]).trim();
+      if (segment && segment.toLowerCase() !== "index.html" && isValidBase32(segment)) {
+        return normalizeSecret(segment);
+      }
     }
 
     return null;
